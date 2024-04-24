@@ -1,0 +1,1113 @@
+---
+title: 'Mineria de dades: PRA1 - Selecció i preparació d''un joc de dades'
+author: "Autor: Àlex Franco Granell"
+date: "Abril 2022"
+output:
+  html_document:
+    highlight: default
+    number_sections: yes
+    theme: cosmo
+    toc: yes
+    toc_depth: 2
+    includes:
+      in_header: 05.584-PEC-header.html
+  word_document: default
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+******
+# Introducció
+******
+## Presentació
+En aquesta pràctica abordem un cas real de mineria de dades on hem de posar en joc tots els conceptes treballats a l'assignatura. Cal treballar tot el **cicle de vida del projecte**, des de l'objectiu del projecte fins a la implementació del coneixement trobat, passant per la preparació, la neteja de les dades, el coneixement de les dades, la generació del model, la interpretació i l'avaluació. La pràctica la dividirem en dues parts. En aquesta primera part (PRA1), abordarem les primeres fases del procés, des dels objectius fins a la preparació de les dades, ia la segona part (PRA2) seguirem amb la resta del procés.
+
+## Objectius
+L'objectiu global d'aquesta primera part de la **pràctica (PRA1)** consisteix a seleccionar un o més jocs de dades, i realitzar les tasques de **preparació i anàlisi exploratòria** amb l'objectiu de disposar de dades preparades per després. A la segona part (PRA2), aplicar algorismes de clustering, regressió o classificació, demostrant la correcta assimilació de tots els aspectes treballats durant el semestre.
+
+## Competències
+Les competències que es treballen en aquesta prova són:
+
+* Ús i aplicació de les TIC en l'àmbit acadèmic i professional.
+* Capacitat per innovar i generar noves idees.
+* Capacitat per avaluar solucions tecnològiques i elaborar propostes de projectes tenint en compte els recursos, les alternatives disponibles i les condicions de mercat.
+* Conèixer les tecnologies de comunicacions actuals i emergents així com saber-les aplicar convenientment per dissenyar i desenvolupar solucions basades en sistemes i tecnologies de la informació.
+* Aplicació de les tècniques específiques d'enginyeria de programari en les diferents etapes del cicle de vida d'un projecte.
+* Capacitat per aplicar les tècniques específiques de tractament, emmagatzematge i administració de dades.
+* Capacitat per proposar i avaluar diferents alternatives tecnològiques per a resoldre un problema concret.
+
+## Objectius
+La correcta assimilació de tots els aspectes treballats durant el semestre.
+En aquesta pràctica abordem un cas real de mineria de dades on hem de posar en joc tots els conceptes treballats.
+Cal treballar tot el cicle de vida d'el projecte. Des del objectiu de el projecte fins a la implementació de el coneixement trobat passant per la preparació, neteja de les dades, coneixement de les dades, generació de el model, interpretació i avaluació.
+
+## Recursos Bàsics
+Material docent proporcionat per la UOC. 
+
+## Criteris de valoració
+
+**Exercicis pràctics** 
+
+Per a totes les PRA és **necessari documentar** en cada apartat de l'exercici pràctic qué s'ha fet i com s'ha fet.
+
+## Format de lliurament PRA_1
+El format de lliurament és: 
+- *fitxer output*: nomusuari_estudiant-PRA1.html/pdf  
+- *fitxer executable*: nomusuari_estudiant-PR1.Rmd
+
+S'ha de lliurar la PRA_1 a la bústia de lliuraments de l'aula.
+
+## Nota: Propietat intel·lectual
+
+> Sovint és inevitable, a l'produir una obra multimèdia, fer ús de recursos creats per terceres persones. És per tant comprensible fer-ho en el marc d'una pràctica dels estudis d'Informàtica, Multimèdia i Telecomunicació de la UOC, sempre que això es documenti clarament i no suposi plagi en la pràctica.
+
+> Per tant, a l'presentar una pràctica que faci ús de recursos aliens, s'ha de presentar juntament amb ella un document en què es detallin tots ells, especificant el nom de cada recurs, el seu autor, el lloc on es va obtenir i el seu estatus legal : si l'obra està protegida pel copyright o s'acull a alguna altra llicència d'ús (Creative Commons, llicència GNU, GPL ...).
+L'estudiant haurà de assegurar-se que la llicència no impedeix específicament seu ús en el marc de la pràctica. En cas de no trobar la informació corresponent haurà d'assumir que l'obra està protegida per copyright.
+
+> Haureu, a més, adjuntar els fitxers originals quan les obres utilitzades siguin digitals, i el seu codi font si correspon.
+
+******
+# Enunciat
+******
+Tot estudi analític ha de néixer d'una necessitat per part del negoci o d'una voluntat de dotar-lo d'un coneixement i contingut en les dades que només podrem obtenir a través d'una col·lecció de bones pràctiques basades en la Mineria de Dades.
+
+El món de l'analítica de dades es sustenta en 3 eixos:
+
+1. Un d'ells és el profund **coneixement** que hauríem de tenir **del negoci** a què tractem de donar respostes mitjançant els estudis analítics.
+
+2. L'altre gran eix és sens dubte les **capacitats analítiques** que siguem capaços de desplegar i en aquest sentit, les dues pràctiques d'aquesta assignatura pretenen que l'estudiant realitzi un recorregut sòlid per aquest segon eix.
+
+3. El tercer eix són els **Dades**. Les necessitats del negoci s'han de concretar amb preguntes analítiques que al seu torn siguin viables respondre a partir de les dades de què disposem. La tasca d'analitzar les dades és sens dubte important, però la tasca d'identificar-los i obtenir-los ha de ser per a un analista un repte permanent.
+
+Com **primera part** de l'estudi analític que ens disposem a realitzar, es demana a l'estudiant que completi els següents passos:
+
+1. Plantejar un problema de analítica de dades detallant-ne els objectius analítics i explica una metodologia per a resoldre'ls d'acord amb lo practicat en les PAC anteriors i també d'acord a lo que s'ha aprés en el material didàctic.
+
+2. Seleccionar un joc de dades i justificar-ne l'elecció. El joc de dades **haurà de tenir capacitats** perquè se li puguin aplicar **algorismes supervisats**, **algorismes no supervisats** i **regles d'associació** i haurà d'estar alineat amb el problema analític plantejat al pas anterior.
+
+**Requisit mínim**: El joc de dades ha de tenir com a mínim 500 observacions amb un mínim de 5 variables numèriques, 2 categòriques i 1 binària. A més ha de **ser diferent**, és important que no sigui un dataset usat a les PAC anteriors.
+
+3. Realitzar una anàlisi exploratòria de el joc de dades seleccionat.
+
+4. Realitzar tasques de neteja i condicionat per poder ser usat en processos de modelatge.
+
+5. Realitzar mètodes de discretització
+
+6. Aplicar un estudi PCA sobre el joc de dades. Tot i no estar explicat en el material didàctic, es valorarà si en lloc de PCA investigueu pel vostre compte i apliqueu SVD (Single Value Decomposition).
+
+* **Alguns recursos**
+  * [PCA per reducció de dimensions](https://www.aprendemachinelearning.com/comprende-principal-component-analysis/)
+  * [SVD Singular Value Decomposition](https://web.mit.edu/be.400/www/SVD/Singular_Value_Decomposition.htm)
+
+
+******
+## Solució:
+## Presentació del problema:
+
+Ens trobem en el supòsit en que treballem per una empresa que facilita l'internacionalització d'empreses. En el nostre cas el nostre departament s'encarrega de gestionar els clients interessats en establir-se a l'amèrica llatina.
+
+Es dona el cas en que una mitjana empresa valenciana vol deslocalitzar part de la seua producció al Brasil, i ha contractat els nostres serveis per tindre un bon assesorament en el seu procés de transformació.
+
+La desició del nostre client ve donada principalment per una recerca d'un major benefici, ja que la producció que es vol deslocalitzar té uns marges de benefici molt estrets. És per això que el departament de recursos humans del client ens ha demanat una recerca de perfils laborals que puguen mantenir, o millorar, la productivitat de l'empresa actual.
+
+En aquest sentit, es vol elaborar un perfil de treballador amb alta productivitat al Brasil. El coneixement adquirit per aquesta tasca servirà al departament de recursos humans per tal de contractar als treballadors que puguen assegurar el millor rendiment possible.
+
+Ens han destacat la importància d'aquesta tasca, ja que al ser una empresa de moderat capital, és una operació amb molts riscos; però potencialment amb grans beneficis.
+
+Així doncs, s'analitzaran les dades d'absentisme laboral disponibles del Brasil per crear un model d'agregació que ens puga definir els perfils més problematics (per al que la productivitat es refereix), i que servirà per classificar rapidament als treballadors en grups que interessa contractar, o no. Per tant un model de clustering i classificació, principalment.
+
+El model es construïrà a partir del dataset del portal de dades obertes "UCI Machine Learning", titolat 'Absenteeism at work' amb dades de l'absentisme laboral d'una empresa del Brasil del 2007 al 2010. Es pot aconseguir a l'enllaç: https://archive.ics.uci.edu/ml/datasets/Absenteeism+at+work
+
+S'ofereix al client l'estratègia següent. El model s'entrenarà a partir de les dades del 2007 i 2010, i s'oferirà la informació demanada. A partir d'ací, es recomanarà al departament de recursos humans que es vaja reavaluant cada trimestre, en un principi, i després quan ja estiguen habituats al Brasil, de manera anual.
+
+La idea és produïr un primer coneixement a partir de les dades mostrades, i després avaluar les dades trimestralment amb dades de l'empresa una vegada estiga relocalitzada al Brasil. Aquestes dades augmentarien el valor de la predicció per ser actuals i relacionades amb el context mercantil de l'empresa client.
+
+Després, una vegada els recursos humans de l'empresa ja s'hagen familiaritzat amb el Brasil, es recomanaria avaluar el model amb dades pròpies anualment. Així i tot, seria sols una recomanació. Ja que tal volta els pot interessar tenir dades actualitzades per a cada campanya de substitució (que normalment coincideix amb els trimestres), d'estiu i hivern. Per tant dependrà de la desició del client escollir la freqüència d'actualització una vegada ja estiguen establerts.
+
+## El joc de dades:
+
+El joc de dades 'Absenteeism at work Data Set' és molt apropiat per l'elaboració del model descrit. El principal problema observat en la seua elecció seria que les dades corresponen als anys de la crisi econòmica global. Però per sortejar aquest problema s'ha fet un anàlisi de la situació del Brasil en aquesta època.
+
+A través de les dades disponibles al portal "Indexmundi" (Disponible en: https://www.indexmundi.com/g/g.aspx?v=65&c=br&l=es) s'ha comprovat que l'impacte de la crisi no va ser tan elevat al Brasil com als països del sud d'Europa. El PIB en aquest període va continuar en creixement sostingut, tot i que al PIB real si s'hi registra la desaceleació soferta en aquell moment.
+
+Així mateix, per a les dades que ens interessen, la tasa de pobresa es va reduïr en el període observat, així com l'atur. El PIB per capita també va augmentar considerablement, al mateix temps que el país augmentava en població.
+
+Amb tot, es resol que el context del país no interfereix en les nostres dades, ja que el context es resol com a favorable per al treballador i que, per aquest motiu, l'absentisme laboral no hauria de tenir registres anormals. És a dir, es descarta a priori que el context haja influenciat considerablement les nostres dades.
+
+A més d'això, el joc de dades presenta més de 700 observacions, diàries, en les que s'observa amb detall les causes de l'absència, les hores que no s'ha produït, i un conjunt d'informació personal que ens permet determinar correctament un perfil laboral. Tant com l'edat, el nivell d'estudis, època temporal de l'absentisme, nombre de fills, consumidor d'alcohol o tabac, etc.
+
+Amb tot, es considera un molt bon punt de partida per l'elaboració del model que ens demana el client.
+
+## Anàlisi exploratòria de les dades:
+
+El primer que farem serà carregar el joc de dades:
+```{r}
+# Carreguem les dades des del fitxe prèviament baixat:
+AbsentismeBase <- read.csv('./Absentisme.csv', sep=';')
+
+# Veiem les dades:
+View(AbsentismeBase)
+
+```
+
+A partir d'aquesta primera càrrega, veiem que les dades estan sintetizades en valors referencials als seus atributs. Mostrarem ara l'estructura bàsica de les dades
+
+```{r}
+library(purrr)
+
+# Nombre de columnes
+cols<-colnames(AbsentismeBase)
+length(cols)
+remove(cols)
+
+# Nombre de files
+nrow(AbsentismeBase)
+
+# El tipus de les dades per columna:
+map(AbsentismeBase, class)
+
+# Referència: https://stackoverflow.com/questions/21125222/determine-the-data-types-of-a-data-frames-columns
+
+```
+Com s'anava comentant, tenim 740 observacions, amb 21 atributs. Aquests estan guardats amb nombres que o bé són xifres en si, com per exemple el pes o el nombre de fills. O bé són referències a caràcters, com per exemple el dia de la setmana, la estació, o la causa de la malaltia, d'entre altres.
+
+Mostre ací el nom de les columnes i detalle breument la informació que mostren. Per a més informació s'adjunta el document de la descripció dels atributs (Disponible com: /Attribute Information.pdf)
+
+**-ID**:
+Número de identificació
+
+**-Reason.for.absence**:
+Motiu d'absència indicat amb un nombre que fa referència als motius. La llista d'aquests es troba al document adjunt
+
+**-Month.of.absence**:
+Mes d'absència expresat en nombre amb referència al fitxer
+
+**-Day.of.week**:
+Dia de la setmana descrit amb nombres, de dilluns a divendres
+
+**-Seasons**:
+Estació de l'any, o bé any del registre, descrit amb nombres.
+
+**-Transportation.expense**:
+El cost econòmic que els costa per anar a la feina descrita amb nombres enters.
+
+**-Distance.from.Residence.to.Work**:
+Distància en kilòmetres fins al lloc de treball. Descrit en enters.
+
+**-Service.time**:
+El temps que porten treballant a l'empresa. Descrit en temps, no sabem si es fa referència a mesos o anys.
+
+**-Age**:
+Edat del treballador descrita en enters.
+
+**-Work.load.Average/day**:
+Càrrega de treball diària descrita amb valors numèrics.
+
+**-Hit.target**:
+Compliment d'objectius.
+
+**-Disciplinary.failure**:
+Si han estat denunciats en anterioritat, expressat binariament.
+
+**-Education**:
+Nivell educatiu expresat en enters. Tal que són Institut(1), Graduat(2), Postgraduat(3), master o doctor(4).
+
+**-Son**:
+Nombre de fills expressat en enters.
+
+**-Social.driker**:
+Si beu alcohol expressat en binaris.
+
+**-Social.smoker**:
+Fumador expressat en binaris.
+
+**-Pet**:
+Nombre de mascotes a casa expressat en enters.
+
+**-Weight**:
+Pes expressat en enters.
+
+**-Height**:
+Altura expressada en enters.
+
+**-Body.mass.index**:
+IMC de cada treballador expressada en enters.
+
+**-Absenteeism.time.in.hours**:
+Hores d'absentisme laboral.
+
+Analitzaré ara els possibles valors nuls i la distribució general de les dades. Buscarem sobretot amb els màximms i mínims els valors que ens puguen cridar l'atenció, per veure si veiem dades anòmales:
+
+```{r}
+# Primerament veiem si les dades presenten valors nuls o buits:
+colSums(is.na(AbsentismeBase))
+
+# Comprove els buits
+colSums(AbsentismeBase=="")
+
+# Comprove els no afegits
+colSums(AbsentismeBase=="..")
+
+```
+En una primera exploració es veu que tots els registres presenten dades, i que no hi ha ni valors nuls, ni valors sense afegir, ni buits. Ara es mirarà la distribució de les dades:
+
+```{r}
+# Mire la distribució de les dades
+summary(AbsentismeBase)
+```
+
+Cite, per columnes, la informació que s'ha extret d'un primer anàlisi de les dades segons la seua distribució:
+
+**-ID**:
+Hi ha 36 persones, pel que es pot identificar pel nombre màxim d'ID.
+
+**-Reason.for.absence**:
+Hi han anomalies. Aquesta columna indica amb nombres els motius d'absència del treballador, i hi ha un mínim de 0. Per tant hi han dades d'absència sense sentit, ja que no tenen motiu declarat.
+
+**-Month.of.absence**:
+Hi han anomalies. El mínim és 0, i no pot haver-hi cap mes declarat com 0, ja que no existeix. Farem una taula per observar-ho millor.
+
+**-Day.of.week**:
+La mitjana és 3.9, per tant es preveu que l'absència al treball tinga una tendència als primers dies de la setmana (els dies van de 2 a 6, com més pròxim a 4 més equilibrades seran les dades). Farem una taula per observar-ho millor.
+
+**-Seasons**:
+Aquest valor l'anem a esborrar, per tant no l'evalue molt. S'ha vist a una exploració directa de les dades, prèvia, que els nombres no corresponen bé amb les estacions de l'any per mes. Per tant es possible que indiquen l'any que foren registrades. Aquestes dades ens interessarien si feren referència a l'estació de l'any, però també aquesta informació seria redundant perquè serien dades molt relacionades amb els mesos. Per tant, com tenim una dada més precisa, podem prescindir d'aquesta informació; ja que si es tractara de l'any del registre tampoc ens interessaria.
+
+**-Transportation.expense**:
+Va de 118 a 388, amb els valors més pròxims a 221. Aquests valors es poden transformar, ja que no sabem tampoc la moneda de referència, i sols ens interessa si els costa poc o molt. Ho anem a normalitzar per la diferència.
+
+**-Distance.from.Residence.to.Work**:
+Els valors semblen prou correctes, amb una distribució de 5 com a mínim i 52 com a màxim, amb valors pròxims a 29 per a la resta. Sobserva, comparant els quartils, que es tendeix a que estiga residint lluny de la feina. Com els valors en si no ens interessen, es van a normalitzar per la diferència.
+
+**-Service.time**:
+Va d'1 a 29, amb els valors pròxims a 12. La distància del tercer quartil al màxim és prou elevada, per tant és possible que es tracte d'anys, ja que hi ha pocs treballadors que hagen estat molt de temps a l'empresa. A més, hi ha un 1 de mínim, estrany seria que fora d'un mes. Tractaré aquests valors com anys i els normalitzaré per la diferència.
+
+**-Age**:
+Aquesta empresa tendia a tenir treballadors majors de 30 anys, amb un màxim de 58. Açò reforça la idea que el temps de servei estava guardat en anys, ja que seria estrany tenir un treballador de 58 anys amb un màxim de 29 mesos de treball registrat al dataset. Aquestes dades s'agruparan en franges d'edat, per veure la freqüència.
+
+**-Work.load.Average/day**:
+No sabem a que fan referència aquestes xifres, per tant s'hauran de discretitzar per poder treballar comodament amb elles. Aquestes dades es normalitzaran per la diferència.
+
+**-Hit.target**:
+Suposem que aquests valors indiquen el percentatge de compliment d'objectius prèvis. Tots tendien a treballar correctament, sobre el 80%. Les normalitzaré per la diferència.
+
+**-Disciplinary.failure**:
+S'observa a la mediana que la majoria no tenia delictes prèvis.
+
+**-Education**:
+S'observa a la mediana que la majoria tenia nivells de secundària i batxillerat. Així mateix hi havien persones amb màsters, ja que el màxim és un 4.
+
+**-Son**:
+A la mediana s'observa que el més comú era tenir un fill. Amb gent amb 4 fills de màxim.
+
+**-Social.driker**:
+A la mediana s'observa que el més comú era que consumiren alcohol.
+
+**-Social.smoker**:
+A la mediana s'observa que el més comú era que no foren fumadors.
+
+**-Pet**:
+A la mediana s'observa que el més comú era no tenir mascota. Amb gent que tenia fins a 8 mascotes a casa.
+
+**-Weight**:
+Rang de pesos prou normals, de 56 a 108 kilos. No ens interessa massa aquesta dada perquè ens quedarem amb lIMC i la resta estarà correlacionat directament amb aquella xifra.
+
+**-Height**:
+Rang d'altures prou normals, de 163 a 196 cm. Pel mateix que abans, no ens interessa massa aquesta dada.
+
+**-Body.mass.index**:
+Dades prou variades, amb una tendència clara cap al sobrepes (>25, amb la mediana a 25 i la mitjana a 26). Aquestes dades es s'agruparan a una nova taula segons els valors assignats per l'organització mundial de la satut (Taula extreta de: https://www.enterat.com/salud/imc-indice-masa-corporal.php)
+
+**-Absenteeism.time.in.hours**:
+Hi ha diverses anomalies. Considerem que les hores de treball normals van fins a 8 hores, acord a la llei. Però hi veiem un mínim de 0 i un màxim de 120. Aquestes dades no poden ser cumulatives perquè van segons el dia que s'ha presentat l'absència laboral. Per tant s'han d'eliminar aquests valors extrems.
+
+# Transformació de les dades:
+
+Com ja s'ha anat explicant prèviament, el dataset presenta alguns valors absurds i necessita de tractar-se per poder operar amb ell. A continuació resumisc per columnes les operacions que es van a realitzar i perquè:
+
+**-Reason.for.absence**: Eliminar valors = 0
+
+Açò és necessari perquè no té sentit tenir un dataset amb dies on han faltat treballadors, i no tenir una justificació de l'absència. Es suposa que és un document formalitzat d'un departament de recursos humans, no un recull d'excuses per no treballar. Per tant aquests registres s'han d'eliminar.
+
+**-Month.of.absence**: Eliminar valors = 0 i fer taula
+
+No existeix el mes 0. Van de l'1 al 12. A més necessitem veure quins mesos són els que mes hores s'han perdut, per tant farem una taula.
+
+**-Day.of.week**: Fer taula
+
+Necessitem veure quins dies són els que mes hores s'han perdut.
+
+**-Seasons**: Esborrar columna
+
+Ja tenim les dades dels mesos per veure amb més precisió quan es solen produïr les absències laborals. De tractar-se de l'any del registre, tampoc ens interessa, ja que hem assumit que les dades ens son vàlides per igual. Per tant l'esborrarem.
+
+**-Transportation.expense**: Normalitzar per la diferència
+
+Les dades no aporten valor en si, sols la seua proporció segons vaja lligat a la l'absència laboral. Volem saber el percentatge de cost sobre el total, segons les hores perdudes. No interessen valors concrets
+
+**-Distance.from.Residence.to.Work**: Normalitzar per la diferència
+
+Igual que l'anterior, no ens interessen les dades en si, sinó la proporció de treballar prop o lluny com afecta a les hores perdudes.
+
+**-Service.time**: Normalitzar per la diferència
+
+No sabem ben bé que volen dir les dades amb seguretat, però igualment, com abans, ens interessa veure la proporció, no les dades en si.
+
+**-Age**: Crear taula per franges d'edat
+
+Ho faig per veure una taula de freqüències més senzilla, els valors en sí no són tan importants. Al capdavall, al nostre model haurem de recomanar per franges al nostre client; no té molt de sentit demanar a un deparatament de recursos humans que cerque una persona de 39 anys en concret.
+
+**-Work.load.Average/day**: normalitzar per la diferència
+
+Igual que les dades d'abans, no ens interessa el nombre en si, sinó la seua proporció sobre la resta segons les hores perdudes.
+
+**-Hit.target**: normalitzar per la diferència
+
+Igual que abans, no sabem que volen dir les dades correctament i sols volem saber la proporció.
+
+**-Body.mass.index**: Crear taula agrupada segons l'oms
+
+Volem tenir una gràfica que ens mostre rapidament la relació entre l'obesitat i les hores perdudes a la feina. No ens interessen valors concrets. 
+
+**-Absenteeism.time.in.hours**: Eliminem valors extrems == 0, o major de 8.
+
+Com s'ha explicat prèviament, no tenen molt de sentit en el dataset que tenim.
+
+Explicades les operacions a fer a cada columna, es procedeix a treballar el dataset per deixar-lo llest per operar.
+
+```{r}
+# Eliminem els valors de la columna 'Reason.for.absence' == 0
+AbsentismeBase<-AbsentismeBase[!(AbsentismeBase$Reason.for.absence==0),]
+
+# Eliminem els valors de la columna 'Month.of.absence" == 0
+AbsentismeBase<-AbsentismeBase[!(AbsentismeBase$Month.of.absence==0),]
+
+# Esborrem la columna 'Seasons':
+Absentisme<-AbsentismeBase[-c(5)]
+
+# Eliminem els valors extrems de la columna 'Absenteeism.time.in.hours':
+# Primer els valors iguals a 0
+Absentisme<-Absentisme[!(Absentisme$Absenteeism.time.in.hours==0),]
+# Després els valors majors a 8
+Absentisme<-Absentisme[!(Absentisme$Absenteeism.time.in.hours>8),]
+
+# Cree la taula de Hores perdudes per mes:
+
+mesos <- data.frame (
+  'Mesos' = c(1,2,3,4,5,6,7,8,9,10,11,12),
+  'Recompte' = c("","","","","","","","","","","",""), 
+  'Hores Absents' = c("","","","","","","","","","","",""))
+
+valors <- Absentisme$Month.of.absence==1
+a1 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Month.of.absence==2
+a2 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Month.of.absence==3
+a3 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Month.of.absence==4
+a4 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Month.of.absence==5
+a5 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Month.of.absence==6
+a6 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Month.of.absence==7
+a7 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Month.of.absence==8
+a8 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Month.of.absence==9
+a9 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Month.of.absence==10
+a10 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Month.of.absence==11
+a11 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Month.of.absence==12
+a12 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+# Referència: https://stackoverflow.com/questions/2190756/how-to-count-true-values-in-a-logical-vector
+
+mesos$Recompte <- c(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12)
+
+aa1 <- sum(Absentisme[which(Absentisme$Month.of.absence==1), 20])
+
+aa2 <- sum(Absentisme[which(Absentisme$Month.of.absence==2), 20])
+
+aa3 <- sum(Absentisme[which(Absentisme$Month.of.absence==3), 20])
+
+aa4 <- sum(Absentisme[which(Absentisme$Month.of.absence==4), 20])
+
+aa5 <- sum(Absentisme[which(Absentisme$Month.of.absence==5), 20])
+
+aa6 <- sum(Absentisme[which(Absentisme$Month.of.absence==6), 20])
+
+aa7 <- sum(Absentisme[which(Absentisme$Month.of.absence==7), 20])
+
+aa8 <- sum(Absentisme[which(Absentisme$Month.of.absence==8), 20])
+
+aa9 <- sum(Absentisme[which(Absentisme$Month.of.absence==9), 20])
+
+aa10 <- sum(Absentisme[which(Absentisme$Month.of.absence==10), 20])
+
+aa11 <- sum(Absentisme[which(Absentisme$Month.of.absence==11), 20])
+
+aa12 <- sum(Absentisme[which(Absentisme$Month.of.absence==12), 20])
+
+# Referència: https://www.statology.org/r-sum-column-with-condition/
+
+mesos$Hores.Absents <- c(aa1,aa2,aa3,aa4,aa5,aa6,aa7,aa8,aa9,aa10,aa11,aa12)
+
+remove(aa1,aa2,aa3,aa4,aa5,aa6,aa7,aa8,aa9,aa10,aa11,aa12)
+remove(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12)
+
+# Cree la taula de Hores perdudes per dia:
+
+dies <- data.frame (
+  'dies' = c(2,3,4,5,6),
+  'Recompte' = c("","","","",""), 
+  'Hores Absents' = c("","","","",""))
+
+valors <- Absentisme$Day.of.the.week==2
+a2 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Day.of.the.week==3
+a3 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Day.of.the.week==4
+a4 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Day.of.the.week==5
+a5 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Day.of.the.week==6
+a6 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+dies$Recompte <- c(a2,a3,a4,a5,a6)
+
+aa2 <- sum(Absentisme[which(Absentisme$Day.of.the.week==2), 20])
+
+aa3 <- sum(Absentisme[which(Absentisme$Day.of.the.week==3), 20])
+
+aa4 <- sum(Absentisme[which(Absentisme$Day.of.the.week==4), 20])
+
+aa5 <- sum(Absentisme[which(Absentisme$Day.of.the.week==5), 20])
+
+aa6 <- sum(Absentisme[which(Absentisme$Day.of.the.week==6), 20])
+
+dies$Hores.Absents <- c(aa2,aa3,aa4,aa5,aa6)
+
+remove(aa2,aa3,aa4,aa5,aa6)
+remove(a2,a3,a4,a5,a6)
+
+# Normalitzem per diferència la columna 'Transportation.expense':
+Absentisme$Transportation.expense = (Absentisme$Transportation.expense-min(Absentisme$Transportation.expense))/(max(Absentisme$Transportation.expense)-min(Absentisme$Transportation.expense))
+
+# Normalitzem per diferència la columna 'Transportation.expense':
+Absentisme$Transportation.expense = (Absentisme$Transportation.expense-min(Absentisme$Transportation.expense))/(max(Absentisme$Transportation.expense)-min(Absentisme$Transportation.expense))
+
+# Normalitzem per diferència la columna 'Distance.from.Residence.to.Work':
+Absentisme$Distance.from.Residence.to.Work = (Absentisme$Distance.from.Residence.to.Work-min(Absentisme$Distance.from.Residence.to.Work))/(max(Absentisme$Distance.from.Residence.to.Work)-min(Absentisme$Distance.from.Residence.to.Work))
+
+# Normalitzem per diferència la columna 'Service.time':
+Absentisme$Service.time = (Absentisme$Service.time-min(Absentisme$Service.time))/(max(Absentisme$Service.time)-min(Absentisme$Service.time))
+
+# Taula per franges d'edat:
+
+# Les franges que utilitzaré seran cada 10 anys, començant per 25 anys (ja que el mínim era de 27)
+
+Edat <- data.frame (
+  'Franges' = c("","","",""),
+  'FrangesN' = c("","","",""), 
+  'Recompte' = c("","","",""), 
+  'Hores Absents' = c("","","",""), 
+  'Hores per treballador' = c("","","",""))
+
+Edat$Franges <- c("De 25 a 35 anys", "De 35 a 45 anys", "De 45 a 55 anys", "De 55 a 65 anys")
+
+Edat$FrangesN <- c(1, 2, 3, 4)
+
+valors <- Absentisme$Age >= 25 & Absentisme$Age < 35
+a <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Age >= 35 & Absentisme$Age < 45
+b <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Age >= 45 & Absentisme$Age < 55
+c <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Age >= 55 & Absentisme$Age < 65
+d <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+Edat$Recompte <- c(a, b, c, d)
+
+aa <- sum(Absentisme[which(Absentisme$Age >= 25 & Absentisme$Age < 35), 20])
+
+bb <- sum(Absentisme[which(Absentisme$Age >= 35 & Absentisme$Age < 45), 20])
+
+cc <- sum(Absentisme[which(Absentisme$Age >= 45 & Absentisme$Age < 55), 20])
+
+dd <- sum(Absentisme[which(Absentisme$Age >= 55 & Absentisme$Age < 65), 20])
+
+Edat$Hores.Absents <- c(aa, bb, cc, dd)
+Edat$Hores.per.treballador <- c((aa/a), (bb/b), (cc/c), (dd/d))
+remove(aa, bb, cc, dd)
+remove(a, b, c, d)
+                    
+# Normalitzem per diferència la columna 'Work.load.Average/day':
+Absentisme$Work.load.Average.day = (Absentisme$Work.load.Average.day-min(Absentisme$Work.load.Average.day))/(max(Absentisme$Work.load.Average.day)-min(Absentisme$Work.load.Average.day))
+
+# Normalitzem per diferència la columna 'Hit.target':
+Absentisme$Hit.target = (Absentisme$Hit.target-min(Absentisme$Hit.target))/(max(Absentisme$Hit.target)-min(Absentisme$Hit.target))
+
+# Creem la taula segons l'oms:
+# (https://www.enterat.com/salud/imc-indice-masa-corporal.php)
+
+IMC <- data.frame (
+  'Franges' = c("","","","",""),
+  'FrangesN' = c("","","","",""), 
+  'Recompte' = c("","","","",""), 
+  'Hores Absents' = c("","","","",""), 
+  'Hores per treballador' = c("","","","",""))
+
+IMC$Franges <- c("Pes normal", "Sobrepès", "Obesitat I", "Obesitat II", "Obesitat III")
+
+IMC$FrangesN <- c(1, 2, 3, 4, 5)
+
+valors <- Absentisme$Body.mass.index >= 18 & Absentisme$Body.mass.index < 25
+a <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Body.mass.index >= 25 & Absentisme$Body.mass.index < 30
+b <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Body.mass.index >= 30 & Absentisme$Body.mass.index < 35
+c <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Body.mass.index >= 35 & Absentisme$Body.mass.index < 40
+d <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- Absentisme$Body.mass.index >= 40 & Absentisme$Body.mass.index < 100
+e <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+IMC$Recompte <- c(a, b, c, d, e)
+
+aa <- sum(Absentisme[which(Absentisme$Body.mass.index >= 18 & Absentisme$Body.mass.index < 25), 20])
+
+bb <- sum(Absentisme[which(Absentisme$Body.mass.index >= 25 & Absentisme$Body.mass.index < 30), 20])
+
+cc <- sum(Absentisme[which(Absentisme$Body.mass.index >= 30 & Absentisme$Body.mass.index < 35), 20])
+
+dd <- sum(Absentisme[which(Absentisme$Body.mass.index >= 35 & Absentisme$Body.mass.index < 40), 20])
+
+ee <- sum(Absentisme[which(Absentisme$Body.mass.index >= 40 & Absentisme$Body.mass.index < 100), 20])
+
+IMC$Hores.Absents <- c(aa, bb, cc, dd, ee)
+IMC$Hores.per.treballador <- c((aa/a), (bb/b), (cc/c), (dd/d), (ee/e))
+remove(aa, bb, cc, dd, ee)
+remove(a, b, c, d, e)
+
+```
+
+Finalment, per fer l'anàlisi de correlacions, elimine les columnes que no ens interessen. Deixaré una amb ID per veure fins a quin punt un mateix treballador ha faltat molt al treball, i la columna de les causes també l'eliminaré. No ens interessa per al nostre estudi.
+
+```{r}
+
+# Esborrem la columna 'ID' i 'Reason.for.absence':
+AbsentismeFinal<-Absentisme[-c(1,2)]
+
+# Guardem un dataframe amb 'ID' per comprovar la seua correlació:
+AbsentismeID<-Absentisme[-c(2)]
+```
+
+# Anàlisi de correlacions i distribucions:
+
+Una vegada tenim preparat el nostre dataset principal, anem a estudiar les correlacions i distribucions de cada columna, segons expliquen les hores absents. Faig un resum de la informació que s'hi veu.
+
+**-Month.of.absence**:
+Al gràfic següent podem veure que les hores perdudes s'han distribuït a llarg de l'any. També veiem una gran incidència al mes de març i de juliol. No sembla que hi haja una distribució clara de les hores perdudes segons el mes de l'any, així mateix, destaca que a l'hivern les hores d'absència són menors que a l'estiu.
+
+Si observem la correlació de les dades, hi ha una llaugera tendència a afavorir el principi d'any. Molt probablement per les dades registrades a març; ja que la seguent dada de gran pèrdua, al juliol, està molt pròxima al centre de l'any.
+
+```{r}
+# Mostre la gràfica:
+barplot(mesos$Hores.Absents, names.arg=mesos$Mesos, main = "Hores perdudes segons mes de l'any", col = "blue")
+
+# Mostre la correlació:
+cor(mesos$Hores.Absents, mesos$Mesos)
+```
+
+**-Day.of.week**:
+Tant a la gràfica, com a la correlació observada, es pot veure que hi ha una clara tendència a l'absentisme laboral a principi de setmana. (més hores absents, més prompte en la setmana)
+
+```{r}
+# Mostre la gràfica:
+barplot(dies$Hores.Absents, names.arg=dies$dies, main = "Hores perdudes segons dia de la setmana laboral", col = "blue")
+
+# Mostre la correlació:
+cor(dies$Hores.Absents, dies$dies)
+```
+
+**-Transportation.expense**:
+Veiem una clara tendència positiva entre ambdós paràmetres. Quan més cost ecòmic per aplegar a la feina, major sol ser l'absència.
+
+```{r}
+# Mostre la correlació:
+cor(AbsentismeFinal$Transportation.expense, AbsentismeFinal$Absenteeism.time.in.hours)
+```
+
+**-Distance.from.Residence.to.Work**:
+La distància, però, no sembla repercutir majoritàriament en l'absentisme laboral. Sí hi ha una relació positiva (quan més lluny, més absentisme), però no és significativa.
+
+```{r}
+# Mostre la correlació:
+cor(AbsentismeFinal$Distance.from.Residence.to.Work, AbsentismeFinal$Absenteeism.time.in.hours)
+
+```
+
+**-Service.time**:
+Pel que fa al temps que porta el treballador a l'empresa, es veu una lleugèra relació negativa. És a dir, quan més temps porta un treballador a l'empresa, menys s'absenta.
+
+```{r}
+# Mostre la correlació:
+cor(AbsentismeFinal$Service.time, AbsentismeFinal$Absenteeism.time.in.hours)
+
+```
+
+
+**-Age**:
+Pel que fa a l'edat, en un principi la correlació ens mostra que no hi ha una tendència clara. Ens ix negativa, per tant vindria a indicar que quan més jove el treballador, més hores perdudes. Així mateix, a la gràfica mostrada s'hi pot veure que tot i que açò a les dades s'hi reflecteix, s'aprecia que els treballadors majors de 55 anys s'absenten menys vegades a l'any, però quan ho fan, ho fan considerablement més temps que els joves. 
+
+Per tant tenim que a priori un jove s'absenta més però menor temps, però en canvi una persona molt major quan s'absenta, supera el temps perdut de la resta d'edats. Mostre també la gràfica de registres d'edat per apreciar el nombre d'absències absolutes, ja que és ben important conèixer que s'absenten molts joves, però pocs vells.
+
+
+```{r}
+#Mostre la gràfica:
+barplot(Edat$Hores.per.treballador, names.arg=Edat$Franges, main = "Hores perdudes per treballador segons la seua edat", col = "blue")
+
+barplot(Edat$Recompte, names.arg=Edat$Franges, main = "Nombre d'absències segons franja d'edat", col = "blue")
+
+# Mostre la correlació:
+cor(AbsentismeFinal$Age, AbsentismeFinal$Absenteeism.time.in.hours)
+
+```
+
+**-Work.load.Average/day**:
+A l'estudi de la relació amb la càrrega de treball, s'hi veu que hi ha una lleugera correlació positiva entre ambdues. És a dir, a quanta més càrrega de treball, més solen perdre hores al treball. S'ha de tenir en compte que aquestes hores són, a priori, justificades, no en horari laboral. Així mateix, la correlació no és molt significativa.
+
+```{r}
+# Mostre la correlació:
+cor(AbsentismeFinal$Work.load.Average.day, AbsentismeFinal$Absenteeism.time.in.hours)
+
+```
+
+**-Hit.target**:
+Per al compliment dels objectius quasi no s'hi veu una relació entre ambdues. S'hi enten el signe negatiu com que, clarament, quantes més hores s'ha faltat al treball, menys s'han complit els seus objectius laborals. No és significativa.
+
+```{r}
+# Mostre la correlació:
+cor(AbsentismeFinal$Hit.target, AbsentismeFinal$Absenteeism.time.in.hours)
+
+```
+
+**-Disciplinary.failure**:
+Es comprova que efectivament la columna de delictes prèvis no conté cap valor. Per tant es resol que després d'haver fet la neteja, no quedaven valors amb registres on hi havia delictes prèvis. S'ha eliminat la columna per facilitar la tasca d'exploració posterior.
+
+```{r}
+# Comprove que no hi ha registres amb valor 1
+unique(AbsentismeFinal$Disciplinary.failure)
+
+# Elimine la columna
+AbsentismeFinal<-AbsentismeFinal[-c(9)]
+
+```
+
+**-Education**:
+L'anàlisi de la correlació ha donat dades interessants i inesperades, ja que tot i ser una relació molt poc significativa, és negativa. Açò vindria a significar que com més estudis te el treballador, més hores laborals es perden. Fet un poc anti-intuitiu a priori.
+
+Per realitzar un millor anàlisi de les dades s'ha decidit de crear una taula a posteriori per mostrar les hores perdudes segons el seu nivell educatiu.
+
+A la gràfica s'hi pot observar que les hores perdudes per treballador són força semblants. Així mateix, el nombre de registres de treballadors amb estudis bàsics, o d'institut, és considerablement més elevat que el nivell de més estudis. Açò pot ser perquè les dades estiguen esbiaixades i hi haja més treballadors amb menys estudis. Ho comprove a la taula de nivell d'estudis segons treballador.
+
+I com es pot veure, tenim un cas semblant al de la franja d'edat. Hi ha molts treballadors amb pocs estudis, i molt pocs amb estudis superiors. També s'ha vist que en veritat el nombre de treballadors és de 33; els nombres d'identificació ens feien intuïr que n'hi havia 36, però n'hi falten de dades.
+
+Per tant veiem que, per al nostre cas d'estudi, els treballadors no correlacionen significativament amb les hores d'absència. Es veu que les hores perdudes per treballador són semblants, però que normalment els treballadors amb menys estudis presenten més absències laborals. A l'estudi del nivell d'estudis també es veu que la majoria de treballadors de l'empresa són de baix nivell educatiu. No podem corroborar les dades de treballadors totals d'aquesta empresa ja que no les disposem. Per tant ens quedem amb que els treballadors amb pocs estudis tendeixen a presentar més baixes, tot i que les hores perdudes són semblants a tots els nivells educatius.
+
+```{r}
+# Mostre la correlació:
+cor(AbsentismeFinal$Education, AbsentismeFinal$Absenteeism.time.in.hours)
+
+# Cree la taula:
+
+estudis <- data.frame (
+  'Franges' = c(1, 2, 3, 4),
+  'Recompte' = c("","","",""), 
+  'Hores Absents' = c("","","",""), 
+  'Hores per nivell' = c("","","",""))
+
+valors <- AbsentismeFinal$Education == 1
+a1 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- AbsentismeFinal$Education == 2
+a2 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- AbsentismeFinal$Education == 3
+a3 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+valors <- AbsentismeFinal$Education == 4
+a4 <- sum(valors, na.rm = TRUE)
+remove(valors)
+
+estudis$Recompte <- c(a1, a2, a3, a4)
+
+aa1 <- sum(Absentisme[which(Absentisme$Education == 1), 20])
+
+aa2 <- sum(Absentisme[which(Absentisme$Education == 2), 20])
+
+aa3 <- sum(Absentisme[which(Absentisme$Education == 3), 20])
+
+aa4 <- sum(Absentisme[which(Absentisme$Education == 4), 20])
+
+estudis$Hores.Absents <- c(aa1, aa2, aa3, aa4)
+estudis$Hores.per.nivell <- c((aa1/a1), (aa2/a2), (aa3/a3), (aa4/a4))
+
+remove(aa1, aa2, aa3, aa4)
+remove(a1, a2, a3, a4)
+
+# Mostre la gràfica 1:
+barplot(estudis$Hores.per.nivell, names.arg=estudis$Franges, main = "Hores perdudes per nivell d'estudis", col = "blue")
+
+barplot(estudis$Recompte, names.arg=estudis$Franges, main = "Nombre d'absències segons nivell d'estudis", col = "blue")
+
+# Cree la segona taula:
+identificadors <- data.frame (
+  'Nivell' = c(1, 2, 3, 4),
+  'Recompte' = c("","","",""))
+
+
+a1 <- length(unique(Absentisme[which(Absentisme$Education == 1), 1]))
+
+a2 <- length(unique(Absentisme[which(Absentisme$Education == 2), 1]))
+
+a3 <- length(unique(Absentisme[which(Absentisme$Education == 3), 1]))
+
+a4 <- length(unique(Absentisme[which(Absentisme$Education == 4), 1]))
+
+identificadors$Recompte <- c(a1, a2, a3, a4)
+
+remove(a1, a2, a3, a4)
+
+# Mostre la gràfica 2:
+barplot(identificadors$Recompte, names.arg=identificadors$Nivell, main = "Nombre de treballadors segons nivell d'estudis", col = "blue")
+
+```
+
+**-Son**:
+S'hi veu a l'estudi de la correlació positiva que lliga el tenir més filla a més absentisme laboral. S'hi observa a través del resum de la taula, que normalment o es té un fill, o no se'n té cap. Ja que la mediana és 1 (nombre més comú), i la mitjana tendeix a >1. Per tant la majoria de registres han d'anar lligats a 0 o 1. Així mateix, es racalca que com hi ha una correlació positiva, a més fills més hores perdudes per dia.
+
+```{r}
+# Mostre la correlació:
+cor(AbsentismeFinal$Son, AbsentismeFinal$Absenteeism.time.in.hours)
+
+# Mostre el resum:
+summary(AbsentismeFinal$Son)
+```
+
+**-Social.driker**:
+S'hi veu una relació positiva relativament significativa que mostra que si una persona beu alcohol, més hores perd al treball. Açò pot ser a causa de malalties relacionades amb el consum d'alcohol.
+
+```{r}
+# Mostre la correlació:
+cor(AbsentismeFinal$Social.drinker, AbsentismeFinal$Absenteeism.time.in.hours)
+
+```
+
+**-Social.smoker**:
+Al igual que el consumidor d'alcohol, hi ha una relació positiva amb els treballadors que fumen tabac amb el nombre d'hores d'absència al treball. Al igual que abans, és possible que açò estiga relacionat amb malalties pel consum de tabac.
+
+```{r}
+# Mostre la correlació:
+cor(AbsentismeFinal$Social.smoker, AbsentismeFinal$Absenteeism.time.in.hours)
+```
+
+**-Pet**:
+També hi ha una correlació positiva clara entre els treballadors que ténen una o més d'una mascota i el nombre d'hores d'absència al treball.
+
+```{r}
+# Mostre la correlació:
+cor(AbsentismeFinal$Pet, AbsentismeFinal$Absenteeism.time.in.hours)
+```
+
+**-Weight i Height**:
+Una primera observació ens mostra que aquestes variables s'hi correlacionen positivament, tot i que l'altura hi és pràcticament marginal.
+
+S'han volgut analitzar ambdues columnes conjuntament per veure la seua correlació amb IMC, ja que es tracta d'una columna estretament relacionada amb aquestes dades. La intenció és veure a primer cop de vista si s'hi pot prescindir d'aquestes columnes per a un estudi posterior.
+
+Com s'esperava, el pes està estretament lligat amb l'IMC, per tant s'hi podria prescindir d'una de les dues. En canvi l'altura mostra una menor correlació, a més de negativa. Té sentit perquè com més menuda és una persona, més IMC té, ja que el factor principal és el seu pes. Per el moment es decideix que aquestes columnes no seran esborrades.
+
+```{r}
+# Mostre la correlació del Pes
+cor(AbsentismeFinal$Weight, AbsentismeFinal$Absenteeism.time.in.hours)
+
+# Mostre la correlació de l'Altura
+cor(AbsentismeFinal$Height, AbsentismeFinal$Absenteeism.time.in.hours)
+
+# Mostre la correlació del Pes amb IMC
+cor(AbsentismeFinal$Weight, AbsentismeFinal$Body.mass.index)
+
+# Mostre la correlació de l'Altura amb IMC
+cor(AbsentismeFinal$Height, AbsentismeFinal$Body.mass.index)
+```
+
+**-Body.mass.index**:
+Finalment s'observa que l'IMC està relacionat positivament amb les hores d'absència al treball. Açò podria ser causat per malalties relacionades amb el sobrepés. És per això que s'havia preparat la taula de l'IMC. Així mateix, s'observa que les hores perdudes per els treballadors, segons pes, són força similars amb una tendència a més hores perdudes quant més sobrepès.
+
+A més, cal observar que la correlació de l'IMC és menor que la del pes. Per tant d'eliminar alguna de les dues, caldria plantejar-se eliminar l'IMC i quedar-se amb el pes i l'altura.
+
+```{r}
+# Mostre la correlació:
+cor(AbsentismeFinal$Body.mass.index, AbsentismeFinal$Absenteeism.time.in.hours)
+
+# Gràfica:
+barplot(IMC$Hores.per.treballador, names.arg=IMC$Franges, main = "Mitja d'hores perdudes per treballador segons el seu pes", col = "blue")
+
+```
+
+# Conclusions d'un primer estudi de les dades:
+Per al que el nostre estudi demana, més o menys ja s'hi tenen unes dades bàsiques sobre el que afavoreix a un treballador a registrar un major nombre d'hores d'absència al treball. A priori el perfil aconseguit seria:
+
+Normalment les absències es produeixen d'entre primavera a la tardor, principalment. Amb mesos especialment complicats com març o juliol. Açò pot ser per proximitat a vacances laborals, o bé a èpoques amb més calor (recordem que estem al Brasil) i que açò interferisca direcament amb la salud dels treballadors. Aquesta podria ser una causa.
+
+Es tendeix a perdre més hores els primers dies de la setmana, però no d'una manera significativa respecte a la resta de dies.
+
+El cost econòmic per aplegar al lloc de treball repercuteix considerablement en les hores perdudes. No influeix tant, però, la distància a la qual residisquen. Açò es pot deure a que a distàncies elevades tal volta s'utilitza transport públic i és més econòmic que agafar el cotxe. Així mateix, com més lluny i més car siga el transport fins el lloc de treball, més hores d'absència.
+
+A més els treballadors que porten més temps a l'empresa tendeixen a absentar-se menys que els nouvinguts. I pel que fa a l'edat, s'ha vist que principalment els treballadors joves són els que més s'ausenten del lloc de treball. Així mateix, quan un treballador major s'absenta, ho fa més temps que la resta de treballadors.
+
+També s'hi veu que la càrrega de treball influeix lleugerament en les hores d'absència. Pot ser un indici de sobreexplotació però no s'hi poden traure conclusions. L'estrés generat per la càrrega de treball podria ser un motiu que agrave malalties del treballador.
+
+S'ha comprovat també que les dades de delictes prèvis i el compliment d'objectius al treball no aporten molta informació. De delictius no hi ha cap, i amb el compliment s'hi veu l'esperat: un treballador que s'absenta molt no pot complir tots els seus objectius (auqesta és la tendència).
+
+S'ha vist també que els treballadors no es diferèncien significativament per segons nivell d'estudis, ja que les hores perdudes són semblants. Així mateix els treballadors amb menys estudis presenten més absències que la resta, tot i ser prou proporcional amb el nombre de treballadors segons els seus estudis. En general els estudis no determinen molt si un treballador s'absentarà del treball o no.
+
+Sí és prou determinant, però, que els treballadors tinguen un o més fills, o una o més mascotes. Quantes més responsabilitats de cuidats, més es tendeix a que el treballador s'absente del seu lloc de treball.
+
+Finalment, pel que fa al tema de la salud del treballador, fumar i beure alcohol propícia una tendència a faltar al treball. Ben probablement per malalties relacionades. Així mateix, com més pes/IMC, més probable és que el treballador s'absente més hores. També és probable que per malalties relacionades. En canvi l'altura no mostra diferències significatives.
+
+Tinguem en compte que al brasil és un clima tropical i els estius poden ser molt sufocants, fet que agreuja els problemes bàsics de salut presentats.
+
+A partir d'aquestes característiques observades el nostre client ja podria anar tenint una idea del tipus de condicions que hauria d'oferir, i que tipus de treballadors hauria de cercar contractar, per reduïr al mínim l'absentisme laboral. Tot això sense haver-hi aplicat encara cap algorisme per aprofundir-hi més.
+
+# Estudi PCA
+A través de l'estudi de components (PCA) anem a comprovar el que aporta cada columna per augmentar el nombre d'hores d'absència. Amb aquestes dades podrem veure com trobar els atributs essencials per predir que és necessari per determinar les hores d'absència segons treballador.
+
+El primer que haurem de fer, ara que ja hem acabat l'anàlisi de les distribucions, serà acabar de normalitzar les dades per la diferència per poder aplicar correctament la PCA.
+
+```{r}
+# Primerament guardem el dataset per diferenciar-lo:
+Abs_Norm <- AbsentismeFinal
+
+# Normalitzem per diferència la columna 'Month.of.absence':
+Abs_Norm$Month.of.absence = (Abs_Norm$Month.of.absence-min(Abs_Norm$Month.of.absence))/(max(Abs_Norm$Month.of.absence)-min(Abs_Norm$Month.of.absence))
+
+# Normalitzem per diferència la columna 'Day.of.the.week':
+Abs_Norm$Day.of.the.week = (Abs_Norm$Day.of.the.week-min(Abs_Norm$Day.of.the.week))/(max(Abs_Norm$Day.of.the.week)-min(Abs_Norm$Day.of.the.week))
+
+# Normalitzem per diferència la columna 'Age':
+Abs_Norm$Age = (Abs_Norm$Age-min(Abs_Norm$Age))/(max(Abs_Norm$Age)-min(Abs_Norm$Age))
+
+# Normalitzem per diferència la columna 'Education':
+Abs_Norm$Education = (Abs_Norm$Education-min(Abs_Norm$Education))/(max(Abs_Norm$Education)-min(Abs_Norm$Education))
+
+# Normalitzem per diferència la columna 'Son':
+Abs_Norm$Son = (Abs_Norm$Son-min(Abs_Norm$Son))/(max(Abs_Norm$Son)-min(Abs_Norm$Son))
+
+# Normalitzem per diferència la columna 'Pet':
+Abs_Norm$Pet = (Abs_Norm$Pet-min(Abs_Norm$Pet))/(max(Abs_Norm$Pet)-min(Abs_Norm$Pet))
+
+# Normalitzem per diferència la columna 'Weight':
+Abs_Norm$Weight = (Abs_Norm$Weight-min(Abs_Norm$Weight))/(max(Abs_Norm$Weight)-min(Abs_Norm$Weight))
+
+# Normalitzem per diferència la columna 'Height':
+Abs_Norm$Height = (Abs_Norm$Height-min(Abs_Norm$Height))/(max(Abs_Norm$Height)-min(Abs_Norm$Height))
+
+# Normalitzem per diferència la columna 'Body.mass.index':
+Abs_Norm$Body.mass.index = (Abs_Norm$Body.mass.index-min(Abs_Norm$Body.mass.index))/(max(Abs_Norm$Body.mass.index)-min(Abs_Norm$Body.mass.index))
+
+# Normalitzem per diferència la columna 'Absenteeism.time.in.hours':
+Abs_Norm$Absenteeism.time.in.hours = (Abs_Norm$Absenteeism.time.in.hours-min(Abs_Norm$Absenteeism.time.in.hours))/(max(Abs_Norm$Absenteeism.time.in.hours)-min(Abs_Norm$Absenteeism.time.in.hours))
+```
+
+Una vegada tenim les dades normalitzades anem a escalar-les.
+
+```{r}
+# Escalem les dades
+acc_scale <- scale(Abs_Norm)
+```
+
+I a partir d'ací farem primer un anàlisis amb prcomp() per veure fins a quin punt se'ns explica cada atribut.
+
+```{r}
+# Fem el prcomp dels valors escalats
+pca.acc_scale <- prcomp(acc_scale)
+summary(pca.acc_scale)
+```
+S'hi pot observar al resum que es necessiten fins a 15 dimensions per tenir una significació del 99%. Per tenir-ne una del 95% caldrien 13, i per tenir-te una del 90% calen 11. Recordem que el nivell de significació és l'encert amb el que volem les nostres prediccions.
+
+Ara calcularé la variància per veure amb quins components principals ens hauriem de quedar. També mostraré un histograma del percentatge de variància de les dades per ajudar a la desició:
+
+```{r}
+if (!require('factoextra')) install.packages('factoextra'); library('factoextra')
+
+# Cree la variancia i mostre els components principals:
+var_acc_scale <- pca.acc_scale$sdev^2
+head(var_acc_scale)
+
+# Mostre l'histograma de variància:
+fviz_eig(pca.acc_scale)
+```
+
+Com era d'esperar, tots els valors són majors a 1, i si seguim el mètode de Kaiser hauriem d'escollir-los tots. Ens interessa tenir una bona representació, però tampoc augmentar exageradament el nombre de dimensions. 
+
+A l'histograma es pot veure que les dimensions segueixen explicant prou informació tal i com van creixent. Per tant, com havia analitzat abans amb el resum dels valors acumulats de variància, em quedaré amb una significació del 90% amb 11 PCs.
+
+```{r}
+# Seleccionem els components:
+var <- get_pca_var(pca.acc_scale)
+
+# Mostre els 11 components escollits:
+head(var$coord[,1:11],11)
+
+```
+
+Faré ara un anàlisi per veure fins a quin punt estan representades les nostres variables en aquestes 11 dimensions.
+
+Primerament mostraré un diagrama de barres per mostrar-ho:
+
+```{r}
+# mostre el diagrama
+fviz_cos2(pca.acc_scale, choice = "var", axes = 1:2)
+```
+
+A primera vista es pot veure que les variables amb més pes en la nostra selecció són l'IMC, el pes, el temps de servei, els costos de transport, si és consumidor d'alchol i l'edat. Totes elles explicades a més d'un 50%.
+
+Les mitjanament ben explicades són les de la distància al treball, l'educació, si té mascota, i quants fills té. Aquestes estan per damunt d'un 25%.
+
+La resta de variables s'han marginalitazat un poc en la nostra seleció, però no és preocupant. S'ha de pensar que les variables més correlacionades amb les hores d'absència estan per damunt d'un 50%. La resta era esperable que foren infrarepresentades.
+
+Mostraré ara la el cercle de variables de la PCA. Com més prop del centre pijor estan representades les dades, i com més allunyades del centre més força, pes en les dimensions, tenen.
+
+```{r}
+# Mostre el cercle de PCA de variables
+fviz_pca_var(pca.acc_scale,
+             col.var = "cos2", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     
+             )
+```
+
+Finalment observaré la contribució de les variables a les dimensions.
+
+```{r}
+# Mostre el cercle de contribucions de les variables a la PCA
+fviz_pca_var(pca.acc_scale, col.var = "contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07")
+             )
+```
+
+**Explicació de la PCA i conclusions finals:**
+
+A través de l'estudi de la PCA hem pogut veure el que ja s'intuïa; hi ha poques variables correlacionades entre elles. Hem vist com les variables que haviem comprovat que estaven més correlacionades han aparegut amb més força a la selecció de dimensions i també en les seues representacions gràfiques.
+
+Les mostres són de la totalitat de les dades, però encara hi haura marge per reduïr atributs que no aporten molt. Em referisc els que estan molt pròxims al centre com el dia de la setmana, el compliment d'objectius, l'altura i la càrrega de treball, d'entre altres.
+
+Així mateix s'hi veu que les dades més correlacionades entre elles són aquelles que apunten en la mateixa direcció, com el cost de transport, tenir fills o mascotes. O també l'edat, el pes, l'IMC, o el temps de servei. Queda ben clar que hi hauria un marge per poder sintetitzar aquest dataset un poc més.
+
+Així mateix, ara seria convenient aplicar-hi altres algorismes per veure com s'agrupen les dades entre elles. La funció principal, la de crear un perfil per al departament de recursos humans de l'empresa valenciana, podria complir-se fàcilment amb un algorisme supervisat d'arbre, per exemple. Així mateix, com a bones pràctiques de la nostra empresa, hauriem de trobar el màxim de coneixement possible i agrupar els tipus de treballadors en grups tipus. Tota la informació que puguem aportar als nostres clients serà ben rebuda.
+
+******
+
+## Criteris de valoració
+
+Per a totes les PRA **cal documentar** a cada apartat de l'exercici pràctic que s'ha fet, perquè s'ha fet i com s'ha fet. Així mateix, totes les decisions i conclusions hauran de ser presentades de forma raonada i clara, **contextualitzant els resultats**, és a dir, especificant tots i cadascun dels passos que s'hagin dut a terme per resoldre'ls.
+
+
+* 20%. Es planteja un problema propi de mineria de dades, s'en detallen els objectius analítics i s'explica detalladament la metodologia per a donar-los solució.
+* 10%. Justificació de l'elecció del joc de dades on es detalla el potencial analític que s'intueix. L'estudiant haurà de visitar els següents portals de dades obertes per a seleccionar el seu joc de dades:
+
+* **Dades obertes**:
+  + [Google Dataset Search](https://datasetsearch.research.google.com/)
+  + [Datos abiertos España](https://datos.gob.es/es/catalogo?q=&frequency=%7B"type"%3A+"months"%2C+"value"%3A+"1"%7D&sort=score+desc%2C+metadata_modified+desc)
+  + [Datos abiertos Madrid](https://datos.madrid.es/portal/site/egob/)
+  + [Datos abiertos Barcelona](https://opendata-ajuntament.barcelona.cat/es/)
+  + [Datos abiertos Londres](https://data.london.gov.uk/)
+  + [Datos abiertos New York](https://opendata.cityofnewyork.us/)
+  
+* **Conjunts de dades per a aprenentatge automàtic i investigació**
+  + [UCI Machine Learning](https://archive.ics.uci.edu/ml/datasets.php)
+  + [Datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)
+  + [Kaggle datasets](https://www.kaggle.com/datasets)
+  
+Recordeu que el mateix dataset **haurà de tenir capacitats** perquè se li puguin aplicar **algorismes supervisats**, **algorismes no supervisats** i **regles dassociació**.
+
+* 20%. Informació extreta de l'anàlisi exploratòria. Distribucions, correlacions, anomalies, ...
+* 20%. Explicació clara de qualsevol tasca de neteja o condicionat que es realitza. Justificant el motiu i esmentant els avantatges de l'acció presa.
+* 20%. Es realitza un procés de PCA o SVD on s'aprecia mitjançant explicacions i comentaris que l'estudiant entén tots els passos i es Scomenta extensament el resultat final obtingut.
+* 10%. Consideració general
+  * Es presenta el codi i és fàcilment reproduïble.
+  * Es detalla cada pregunta correctament, mostrant el codi, comentant com s'ha fet i perquè s'ha fet, comparant els resultats i/o indicant altres alternatives al problema indicat.
+  * Es mostren les conclusions a cada apartat
+  * S'hi indiquen eventuals citacions bibliogràfiques, fonts internes/externes i materials de recerca.
+
+
+******
+# Recursos de programació
+******
+* Incloem en aquest apartat una llista de recursos de programació per a mineria de dades on podreu trobar exemples, idees i inspiració:
+  + [Material addicional del llibre: Minería de datos Modelos y Algoritmos](http://oer.uoc.edu/libroMD/)
+  + [Espai de recursos UOC per a ciència de dades](http://datascience.recursos.uoc.edu/)
+  + [Cercador de codi R](https://rseek.org/)  
+  + [Col·lecció de cheatsheets en R](https://www.rstudio.com/resources/cheatsheets/)  
+  
+
+******
